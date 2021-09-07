@@ -18,9 +18,9 @@
  */
 int SolveSqrEq(double a, double b, double c, double *r1, double *r2)
 {
-    assert(!isnan(a));
-    assert(!isnan(b));
-    assert(!isnan(c));
+    assert(isfinite(a));
+    assert(isfinite(b));
+    assert(isfinite(c));
     assert(r1 != r2);
     assert(r1 != NULL);
     assert(r2 != NULL);
