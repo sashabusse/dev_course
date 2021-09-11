@@ -15,32 +15,33 @@ int main()
            "to solve a*x^2 + b*x + c = 0\n"
            "enter a b c : ");
 
-    double a, b, c;
+    double a = 0, b = 0, c = 0;
     scanf("%lg %lg %lg", &a, &b, &c);
 
-    double r1, r2;
-    int n_roots = SolveSqrEq(a, b, c, &r1, &r2);
+    double r1 = 0, r2 = 0;
+    SOLVE_STATUS n_roots = SolveSqrEq(a, b, c, &r1, &r2);
 
     switch (n_roots)
     {
-    case 0:
+    case SOLVE_0_ROOTS:
         printf("this equation doesn't have roots\n");
         break;
 
-    case 1:
+    case SOLVE_1_ROOT:
         printf("found 1 root: r1 = %lg\n", r1);
         break;
 
-    case 2:
+    case SOLVE_2_ROOTS:
         printf("found 2 roots: r1 = %lg, r2 = %lg\n", r1, r2);
         break;
 
-    case SS_INFINITE_ROOT_NUM:
+    case SOLVE_INF_ROOTS:
         printf("solution: x is any value\n");
         break;
-
+    case SOLVE_ERR_BAD_PTR:
+    case SOLVE_ERR_INF:
     default:
-        assert(0);
+        printf("error occured\n");
         break;
     }
 

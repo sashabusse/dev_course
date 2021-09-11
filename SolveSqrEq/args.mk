@@ -1,4 +1,18 @@
-CXX_WARNS += \
+CXX_ARGS := \
+-g \
+-std=c++17
+
+CXX_ARGS += \
+-fcheck-new \
+-fsized-deallocation \
+-fstack-check \
+-fstrict-overflow \
+-fchkp-first-field-has-own-bounds \
+-fchkp-narrow-to-innermost-array \
+-flto-odr-type-merging \
+-fno-omit-frame-pointer
+
+CXX_ARGS += \
 -Wall \
 -Wextra \
 -Weffc++ \

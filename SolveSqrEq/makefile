@@ -1,47 +1,50 @@
+#common settings
 BUILD_DIR = build
 OBJ_DIR = $(BUILD_DIR)/obj
-TARGET = solver.exe
 CXX = D:/dev_tools/toolchains/mingw64/x86_64-8.1.0-win32-seh-rt_v6-rev0/mingw64/bin/g++.exe
+include args.mk
 
-all: $(BUILD_DIR)/$(TARGET)
+all: application
+# << application settings >> -------------------------------------------------
+APP_NAME = solver
+APP_SRC = $(wildcard code/*.c)
+APP_OBJ_FILES = $(addprefix $(OBJ_DIR)/,$(notdir $(APP_SRC:.c=.o)))
+APP_INC_FOLDERS = -Icode/ 
 
-CXX_ARGS := \
--g \
--std=c++17
-
-include warns.mk
-CXX_ARGS += $(CXX_WARNS)
-
-CXX_ARGS += \
--fcheck-new \
--fsized-deallocation \
--fstack-check \
--fstrict-overflow \
--fchkp-first-field-has-own-bounds \
--fchkp-narrow-to-innermost-array \
--flto-odr-type-merging \
--fno-omit-frame-pointer
-
-
-C_SOURCES := \
-code/main.c \
-code/SolveSqrEq.c 
-
-OBJ_FILES = $(addprefix $(OBJ_DIR)/,$(notdir $(C_SOURCES:.c=.o)))
-
-.PHONY: echo_obj
-echo_obj:
-	echo $(OBJ_FILES)
+.PHONY: application
+application: $(BUILD_DIR)/$(APP_NAME).exe
 
 #linking executable target
-$(BUILD_DIR)/$(TARGET): $(OBJ_FILES) | $(BUILD_DIR)
-	$(CXX) $(CXX_ARGS) -o $@ $(OBJ_FILES)
+$(BUILD_DIR)/$(APP_NAME).exe: $(APP_OBJ_FILES) | $(BUILD_DIR)
+	$(CXX) $(CXX_ARGS) -o $@ $(APP_OBJ_FILES)
 
+# << unit tests settings >> ----------------------------------------------------
+TEST_NAME := u_test
+TEST_SRC := $(wildcard code/*.c) $(wildcard unit_test/*.c)
+TEST_SRC := $(filter-out code/main.c, $(TEST_SRC))
+TEST_OBJ_FILES = $(addprefix $(OBJ_DIR)/,$(notdir $(TEST_SRC:.c=.o)))
+TEST_INC_FOLDERS = -Icode/ -Iunit_test/ 
+
+.PHONY: run_test test
+run_test: test
+	$(BUILD_DIR)/$(TEST_NAME).exe
+	
+test: $(BUILD_DIR)/$(TEST_NAME).exe
+
+$(BUILD_DIR)/$(TEST_NAME).exe: $(TEST_OBJ_FILES) | $(BUILD_DIR)
+	$(CXX) $(CXX_ARGS) -o $@ $(TEST_OBJ_FILES)
+
+application: INC_FOLDERS = $(APP_INC_FOLDERS)
+test: INC_FOLDERS = $(TEST_INC_FOLDERS)
 #compiling necessary sources
-$(OBJ_DIR)/%.o: code/%.c | $(OBJ_DIR)
-	$(CXX) $(CXX_ARGS) -MD -MP -c -o $@ $<
+$(OBJ_DIR)/%.o: */%.c | $(OBJ_DIR)
+	$(CXX) $(CXX_ARGS) $(INC_FOLDERS) -MD -MP -c -o $@ $<
 
--include $(OBJ_FILES:.o=.d)
+#all obj files (sort to delete duplicates)
+ALL_OBJ_FILES := $(APP_OBJ_FILES) $(TEST_OBJ_FILES)
+ALL_OBJ_FILES := $(sort $(ALL_OBJ_FILES))
+
+-include $(ALL_OBJ_FILES:.o=.d)
 
 
 #create necessary directories
@@ -58,9 +61,9 @@ clean:
 
 
 # doxygen documentation
-DOX_EXE_DIR = D:/dev_tools/Utility/doxygen/bin
-DOX_FOLDER = dox
-DOX_CONFIG = $(DOX_FOLDER)/Doxyfile
+DOXYGEN_DIR = D:/dev_tools/Utility/doxygen/bin
+DOX_FOLDER = do
+DOXYGEN_CONFIG = Doxyfile
 
 .PHONY: doxygen doxGUI
 
